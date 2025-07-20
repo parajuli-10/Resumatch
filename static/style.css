@@ -1,0 +1,40 @@
+/* Global Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.bg-gradient-custom {
+  background: linear-gradient(135deg, #f0f8ff, #f7faff);
+}
+
+/* Login Card */
+.login-card {
+  max-width: 400px;
+  width: 100%;
+  border-radius: 15px;
+}
+
+/* Form Controls */
+.form-control {
+  border-radius: 10px;
+  padding: 12px;
+}
+
+/* Custom Button */
+.btn-custom {
+  background: linear-gradient(to right, #5563de, #43c6ac);
+  border: none;
+  color: #ffffff;
+  transition: background 0.3s ease-in-out;
+}
+
+.btn-custom:hover {
+  background: linear-gradient(to right, #43c6ac, #5563de);
+}
+
+/* Role Button Adjustments */
+.btn-outline-primary.active {
+  background-color: #e0eaff;
+  border-color: #5563de;
+  color: #5563de;
+}

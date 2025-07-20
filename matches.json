@@ -1,0 +1,173 @@
+[
+    {
+        "candidate_name": "a",
+        "candidate_email": "a@a.com",
+        "resume": "test.pdf",
+        "job_description": "test2.pdf",
+        "score": 57.23,
+        "date": "2025-03-12 10:29:43",
+        "employer_id": 1
+    },
+    {
+        "candidate_name": "a",
+        "candidate_email": "a@a.com",
+        "resume": "test.pdf",
+        "job_description": "test2.pdf",
+        "score": 57.23,
+        "date": "2025-03-12 10:36:26",
+        "employer_id": 1
+    },
+    {
+        "candidate_name": "a",
+        "candidate_email": "a@a.com",
+        "resume": "test.pdf",
+        "job_description": "djob.pdf",
+        "score": 14.65,
+        "date": "2025-03-12 10:38:40",
+        "employer_id": 3
+    },
+    {
+        "candidate_name": "a",
+        "candidate_email": "a@a.com",
+        "resume": "IT_Support_Officer_Resume.pdf",
+        "job_description": "IT_Support_Officer_Resume.pdf",
+        "score": 100.0,
+        "date": "2025-03-12 11:15:41",
+        "employer_id": 1
+    },
+    {
+        "candidate_name": "d",
+        "candidate_email": "d@d.com",
+        "resume": "test.pdf",
+        "job_description": "IT_Support_Officer_Resume.pdf",
+        "score": 19.83,
+        "date": "2025-03-12 11:16:38",
+        "employer_id": 1
+    },
+    {
+        "candidate_name": "d",
+        "candidate_email": "d@d.com",
+        "resume": "djob.pdf",
+        "job_description": "djob.pdf",
+        "score": 100.0,
+        "date": "2025-03-12 11:17:18",
+        "employer_id": 3
+    },
+    {
+        "candidate_name": "Bisesh",
+        "candidate_email": "mail@b.com",
+        "resume": "IT_Support_Officer_Resume.pdf",
+        "job_description": "djob.pdf",
+        "score": 48.71,
+        "date": "2025-03-14 06:57:16",
+        "employer_id": 3
+    },
+    {
+        "candidate_name": "Bisesh",
+        "candidate_email": "mail@b.com",
+        "resume": "IT_Support_Officer_Resume.pdf",
+        "job_description": "IT_Support_Officer_Resume.pdf",
+        "score": 100.0,
+        "date": "2025-03-14 06:57:24",
+        "employer_id": 1
+    },
+    {
+        "candidate_name": "bis",
+        "candidate_email": "bis@bb.com",
+        "resume": "IT_Support_Officer_Resume.pdf",
+        "job_description": "djob.pdf",
+        "score": 48.71,
+        "date": "2025-03-14 07:08:00",
+        "employer_id": 3
+    },
+    {
+        "candidate_name": "bis",
+        "candidate_email": "bis@bb.com",
+        "resume": "IT_Support_Officer_Resume.pdf",
+        "job_description": "IT_Support_Officer_Resume.pdf",
+        "score": 100.0,
+        "date": "2025-03-14 07:09:02",
+        "employer_id": 1
+    },
+    {
+        "candidate_name": "ujjwol",
+        "candidate_email": "ujju@u.com",
+        "resume": "SIL_Team_Leader_Resume.pdf",
+        "job_description": "djob.pdf",
+        "score": 14.65,
+        "date": "2025-03-14 07:59:11",
+        "employer_id": 3
+    },
+    {
+        "candidate_name": "ujjwol",
+        "candidate_email": "ujju@u.com",
+        "resume": "IT_Support_Officer_Resume.pdf",
+        "job_description": "IT_Support_Officer_Resume.pdf",
+        "score": 100.0,
+        "date": "2025-03-14 08:01:21",
+        "employer_id": 1
+    },
+    {
+        "candidate_name": "ujjwol",
+        "candidate_email": "ujju@u.com",
+        "resume": "IT_Support_Officer_Resume.pdf",
+        "job_description": "IT_Support_Officer_Job_Description.pdf",
+        "score": 48.71,
+        "date": "2025-03-14 08:02:03",
+        "employer_id": 8
+    },
+    {
+        "candidate_name": "y",
+        "candidate_email": "y@y.com",
+        "resume": "IT_Support_Officer_Resume.pdf",
+        "job_description": "djob.pdf",
+        "score": 48.71,
+        "date": "2025-03-16 08:18:28",
+        "employer_id": 3
+    },
+    {
+        "candidate_name": "y",
+        "candidate_email": "y@y.com",
+        "resume": "test.pdf",
+        "job_description": "testjob.pdf",
+        "score": 6.73,
+        "date": "2025-03-16 08:19:11",
+        "employer_id": 11
+    },
+    {
+        "candidate_name": "JOE Mama",
+        "candidate_email": "joe.mama@test.com",
+        "resume": "IT_Support_Officer_Resume.pdf",
+        "job_description": "Game_Developer_Job_Description.pdf",
+        "score": 3.59,
+        "date": "2025-03-16 08:44:31",
+        "employer_id": 13
+    },
+    {
+        "candidate_name": "Raj",
+        "candidate_email": "raj@test.com",
+        "resume": "test.pdf",
+        "job_description": "djob.pdf",
+        "score": 14.65,
+        "date": "2025-03-16 10:47:47",
+        "employer_id": 3
+    },
+    {
+        "candidate_name": "Raj",
+        "candidate_email": "raj@test.com",
+        "resume": "IT_Support_Officer_Resume.pdf",
+        "job_description": "IT_Support_OfficerJOB.pdf",
+        "score": 100.0,
+        "date": "2025-03-16 10:56:25",
+        "employer_id": 16
+    },
+    {
+        "candidate_name": "z",
+        "candidate_email": "z@z.com",
+        "resume": "SIL_Team_Leader_Resume.pdf",
+        "job_description": "IT_Support_OfficerJOB.pdf",
+        "score": 19.83,
+        "date": "2025-03-16 10:56:59",
+        "employer_id": 16
+    }
+]

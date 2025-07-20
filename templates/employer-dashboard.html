@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ResuMatch - Employer Dashboard</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gradient-custom">
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+      <a class="navbar-brand" href="#">Employer Dashboard</a>
+      <div class="ms-auto">
+        <a href="{{ url_for('logout') }}" class="btn btn-danger hover-effect">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container mt-3">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Main Content -->
+  <div class="container mt-4 dashboard-container">
+    <div class="row">
+      
+      <!-- Left Column: Upload Job Description -->
+      <div class="col-md-6 mb-4">
+        <h4>Upload Job Description</h4>
+        <form id="jobUploadForm" action="{{ url_for('upload_job') }}" method="POST" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="jobDescription" class="form-label">Upload Job Description (PDF)</label>
+            <input type="file" class="form-control" id="jobDescription" name="job_description" accept=".pdf" required>
+          </div>
+          <button type="submit" class="btn btn-custom w-100">Upload</button>
+        </form>
+
+        <h5 class="mt-4">Job Descriptions You Uploaded</h5>
+        <ul class="list-group">
+          {% for job in job_descriptions %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <a href="{{ url_for('download_job', filename=job) }}">{{ job }}</a>
+              <span class="badge rounded-pill bg-primary">
+                {{ candidate_counts.get(job, 0) }} Candidates Matched
+              </span>
+              <!-- Delete Job Button -->
+              <form action="{{ url_for('delete_job', filename=job) }}" method="POST" class="ms-2">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Right Column: Candidate Rankings -->
+      <div class="col-md-6">
+        <h5>Candidate Rankings</h5>
+        <div class="table-responsive">
+          <table class="table table-bordered hover-effect">
+            <thead>
+              <tr>
+                <th>Job Description</th>
+                <th>Candidate Name</th>
+                <th>Email</th>
+                <th>Similarity Score</th>
+              </tr>
+            </thead>
+            <tbody id="candidatesTableBody">
+              {% for match in matches %}
+                <tr>
+                  <td>{{ match.job_description }}</td>
+                  <td>{{ match.candidate_name if match.candidate_name else 'Unknown Candidate' }}</td>
+                  <td>
+                    {% if match.candidate_email %}
+                      <a href="mailto:{{ match.candidate_email }}">{{ match.candidate_email }}</a>
+                    {% else %}
+                      Unknown Email
+                    {% endif %}
+                  </td>
+                  <td>{{ "%.2f"|format(match.similarity_score|float) }}%</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
