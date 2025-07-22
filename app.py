@@ -1,5 +1,7 @@
 import json
 from flask import Flask, request, render_template, redirect, url_for, session, flash, abort
+import random
+import string
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
@@ -42,10 +44,19 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    employer_id = db.Column(db.String(6), unique=True, nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     full_name = db.Column(db.String(120), nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(20), default='user')
+
+    @staticmethod
+    def generate_employer_id():
+        characters = string.ascii_uppercase + string.digits
+        while True:
+            random_id = ''.join(random.choices(characters, k=6))
+            if not User.query.filter_by(employer_id=random_id).first():
+                return random_id
     
 
 with app.app_context():
@@ -96,7 +107,7 @@ def user_dashboard():
 
 @app.route('/employer-dashboard')
 def employer_dashboard():
-    if 'user_id' not in session or session.get('role') != 'employer':
+    if 'employer_id' not in session or session.get('role') != 'employer':
         return redirect(url_for('employer_login_page'))
     # Load job descriptions uploaded by this employer
     try:
@@ -104,7 +115,7 @@ def employer_dashboard():
             all_jobs = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         all_jobs = []
-    job_descriptions = [entry['job_description'] for entry in all_jobs if entry.get('employer_id') == session['user_id']]
+    job_descriptions = [entry['job_description'] for entry in all_jobs if entry.get('employer_id') == session['employer_id']]
     # Remove duplicates in case of any
     job_descriptions = list(dict.fromkeys(job_descriptions))
     # Prepare matches list and candidate counts for this employer's jobs
@@ -116,7 +127,7 @@ def employer_dashboard():
     except (FileNotFoundError, json.JSONDecodeError):
         saved_matches = []
     for match in saved_matches:
-        if match.get('employer_id') == session['user_id']:
+        if match.get('employer_id') == session['employer_id']:
             job_desc = match.get('job_description', 'Unknown Job Description')
             name = match.get('candidate_name', 'Unknown Candidate')
             email = match.get('candidate_email', 'Unknown Email')
@@ -154,7 +165,16 @@ def register():
         return redirect(url_for('register_page'))
     # Create new user and save to database
     hashed_password = generate_password_hash(password)
-    user = User(email=email, full_name=full_name, password_hash=hashed_password, role=role)
+    employer_id = None
+    if role == 'employer':
+        employer_id = User.generate_employer_id()
+    user = User(
+        email=email,
+        full_name=full_name,
+        password_hash=hashed_password,
+        role=role,
+        employer_id=employer_id,
+    )
     db.session.add(user)
     db.session.commit()
     flash("Registered successfully! Please log in.", "success")
@@ -171,6 +191,7 @@ def login():
         session['user_name'] = user.full_name
         session['user_email'] = user.email
         if user.role == 'employer':
+            session['employer_id'] = user.employer_id
             return redirect(url_for('employer_dashboard'))
         else:
             return redirect(url_for('user_dashboard'))
@@ -185,7 +206,7 @@ def logout():
 
 @app.route('/upload-job', methods=['POST'])
 def upload_job():
-    if 'user_id' not in session or session.get('role') != 'employer':
+    if 'employer_id' not in session or session.get('role') != 'employer':
         flash('Please log in first.', 'danger')
         return redirect(url_for('employer_login_page'))
     job_file = request.files.get('job_description')
@@ -209,11 +230,14 @@ def upload_job():
         jobs_list = []
     job_entry = {
         "job_description": filename,
-        "employer_id": session['user_id'],
+        "employer_id": session['employer_id'],
         "date": datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     }
     # Avoid duplicate job entries
-    if not any(j.get('job_description') == filename and j.get('employer_id') == session['user_id'] for j in jobs_list):
+    if not any(
+        j.get('job_description') == filename and j.get('employer_id') == session['employer_id']
+        for j in jobs_list
+    ):
         jobs_list.append(job_entry)
         with open(JOBS_FILE, 'w') as f:
             json.dump(jobs_list, f, indent=4)
@@ -307,7 +331,7 @@ def upload_resume():
 
 @app.route('/delete-job/<filename>', methods=['POST'])
 def delete_job(filename):
-    if 'user_id' not in session or session.get('role') != 'employer':
+    if 'employer_id' not in session or session.get('role') != 'employer':
         flash('Unauthorized action.', 'danger')
         return redirect(url_for('employer_dashboard'))
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -319,7 +343,14 @@ def delete_job(filename):
             jobs_list = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         jobs_list = []
-    jobs_list = [entry for entry in jobs_list if not (entry.get('job_description') == filename and entry.get('employer_id') == session['user_id'])]
+    jobs_list = [
+        entry
+        for entry in jobs_list
+        if not (
+            entry.get('job_description') == filename
+            and entry.get('employer_id') == session['employer_id']
+        )
+    ]
     with open(JOBS_FILE, 'w') as f:
         json.dump(jobs_list, f, indent=4)
     flash(f"Job Description '{filename}' deleted successfully!", 'success')
@@ -329,7 +360,7 @@ def delete_job(filename):
 def download_job(filename):
     """Serve the job description file for download"""
     # Ensure employer is logged in
-    if 'user_id' not in session or session.get('role') != 'employer':
+    if 'employer_id' not in session or session.get('role') != 'employer':
         flash('Please log in first.', 'danger')
         return redirect(url_for('employer_login_page'))
 
@@ -345,7 +376,7 @@ def download_job(filename):
             job
             for job in jobs_list
             if job.get('job_description') == filename
-            and job.get('employer_id') == session['user_id']
+            and job.get('employer_id') == session['employer_id']
         ),
         None,
     )
