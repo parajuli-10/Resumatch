@@ -326,6 +326,32 @@ def delete_job(filename):
 @app.route('/download-job/<filename>')
 def download_job(filename):
     """Serve the job description file for download"""
+    # Ensure employer is logged in
+    if 'user_id' not in session or session.get('role') != 'employer':
+        flash('Please log in first.', 'danger')
+        return redirect(url_for('employer_login_page'))
+
+    # Verify the requested file belongs to this employer
+    try:
+        with open(JOBS_FILE, 'r') as f:
+            jobs_list = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        jobs_list = []
+
+    job_entry = next(
+        (
+            job
+            for job in jobs_list
+            if job.get('job_description') == filename
+            and job.get('employer_id') == session['user_id']
+        ),
+        None,
+    )
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if not job_entry or not os.path.exists(file_path):
+        flash("File not found or you don't have permission to access it.", 'danger')
+        return redirect(url_for('employer_dashboard'))
+
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
 
