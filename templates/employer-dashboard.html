@@ -44,7 +44,7 @@
         <form id="jobUploadForm" action="{{ url_for('upload_job') }}" method="POST" enctype="multipart/form-data">
           <div class="mb-3">
             <label for="jobDescription" class="form-label">Upload Job Description (PDF)</label>
-            <input type="file" class="form-control" id="jobDescription" name="job_description" accept=".pdf" required>
+            <input type="file" class="form-control" id="jobDescription" name="job_description" accept=".pdf,.doc,.docx,.txt" capture="environment" required>
           </div>
           <button type="submit" class="btn btn-custom w-100">Upload</button>
         </form>

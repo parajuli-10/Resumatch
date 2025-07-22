@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request, render_template, redirect, url_for, session, flash
+from flask import Flask, request, render_template, redirect, url_for, session, flash, abort
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
@@ -352,7 +352,7 @@ def download_job(filename):
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if not job_entry or not os.path.exists(file_path):
         flash("File not found or you don't have permission to access it.", 'danger')
-        return redirect(url_for('employer_dashboard'))
+        abort(404)
 
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
