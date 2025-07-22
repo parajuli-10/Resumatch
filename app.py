@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+import uuid
 import io
 from PyPDF2 import PdfReader
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -196,7 +197,9 @@ def upload_job():
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
     filename = secure_filename(job_file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    name, ext = os.path.splitext(filename)
+    unique_filename = f"{name}_{uuid.uuid4().hex}{ext}"
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
     job_file.save(file_path)
     # Record this job upload in jobs.json with employer association
     try:
@@ -205,16 +208,16 @@ def upload_job():
     except (FileNotFoundError, json.JSONDecodeError):
         jobs_list = []
     job_entry = {
-        "job_description": filename,
+        "job_description": unique_filename,
         "employer_id": session['user_id'],
         "date": datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     }
     # Avoid duplicate job entries
-    if not any(j.get('job_description') == filename and j.get('employer_id') == session['user_id'] for j in jobs_list):
+    if not any(j.get('job_description') == unique_filename and j.get('employer_id') == session['user_id'] for j in jobs_list):
         jobs_list.append(job_entry)
         with open(JOBS_FILE, 'w') as f:
             json.dump(jobs_list, f, indent=4)
-    flash(f"Job Description '{filename}' uploaded successfully!", 'success')
+    flash(f"Job Description '{unique_filename}' uploaded successfully!", 'success')
     return redirect(url_for('employer_dashboard'))
 
 @app.route('/upload-resume', methods=['POST'])
@@ -232,19 +235,25 @@ def upload_resume():
     # Handle job description input (either an existing selection or a new upload)
     if uploaded_jd:
         jd_filename = secure_filename(uploaded_jd.filename)
-        job_desc_path = os.path.join(app.config['UPLOAD_FOLDER'], jd_filename)
+        jd_name, jd_ext = os.path.splitext(jd_filename)
+        unique_jd_filename = f"{jd_name}_{uuid.uuid4().hex}{jd_ext}"
+        job_desc_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_jd_filename)
         uploaded_jd.save(job_desc_path)
+        job_desc_basename = unique_jd_filename
     elif selected_jd:
         job_desc_path = os.path.join(app.config['UPLOAD_FOLDER'], selected_jd)
         if not os.path.exists(job_desc_path):
             flash("Selected job description file doesn't exist.", 'danger')
             return redirect(url_for('user_dashboard'))
+        job_desc_basename = selected_jd
     else:
         flash('Please select or upload a job description.', 'danger')
         return redirect(url_for('user_dashboard'))
     # Save the uploaded resume file
     resume_filename = secure_filename(resume_file.filename)
-    resume_path = os.path.join(app.config['UPLOAD_FOLDER'], resume_filename)
+    res_name, res_ext = os.path.splitext(resume_filename)
+    unique_resume_filename = f"{res_name}_{uuid.uuid4().hex}{res_ext}"
+    resume_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_resume_filename)
     resume_file.save(resume_path)
     # Extract text from resume and job description PDFs
     with open(resume_path, 'rb') as f:
@@ -265,15 +274,15 @@ def upload_resume():
     except (FileNotFoundError, json.JSONDecodeError):
         jobs_list = []
     for entry in jobs_list:
-        if entry.get('job_description') == os.path.basename(job_desc_path):
+        if entry.get('job_description') == job_desc_basename:
             employer_id = entry.get('employer_id')
             break
     # Create match record
     match_data = {
         "candidate_name": user.full_name,
         "candidate_email": user.email,
-        "resume": resume_filename,
-        "job_description": os.path.basename(job_desc_path),
+        "resume": unique_resume_filename,
+        "job_description": job_desc_basename,
         "score": similarity_score,
         "date": datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
         "employer_id": employer_id
