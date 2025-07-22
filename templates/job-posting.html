@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Post Job</title>
+</head>
+<body>
+<!-- Some context maybe not necessary? We'll adapt. -->
+<!-- /* START JOB FORM */ -->
+<form method="POST" enctype="multipart/form-data">
+  <label>Upload Job Description:</label>
+  <input type="file" name="job_doc" accept=".pdf" /><br/>
+  <!-- NEW FIELDS GO HERE -->
+  <label for="position_type">Position Type:</label>
+  <select name="position_type" id="position_type">
+    <option value="Full Time">Full Time</option>
+    <option value="Part Time">Part Time</option>
+    <option value="Casual">Casual</option>
+  </select><br/>
+  <label for="occupation">Occupation:</label>
+  <input type="text" name="occupation" id="occupation" list="occupation-list" />
+  <datalist id="occupation-list">
+    <option value="Software Engineer"></option>
+    <option value="Data Analyst"></option>
+    <option value="Project Manager"></option>
+  </datalist><br/>
+  <label for="work_mode">Work Mode:</label>
+  <select name="work_mode" id="work_mode">
+    <option value="Onsite">Onsite</option>
+    <option value="Remote">Remote</option>
+    <option value="Hybrid">Hybrid</option>
+  </select><br/>
+  <label for="job_title">Job Title:</label>
+  <input type="text" name="job_title" id="job_title" /><br/>
+  <label for="short_description">Short Description:</label>
+  <textarea name="short_description" id="short_description"></textarea><br/>
+  <label for="experience_required">Experience Required (years):</label>
+  <input type="number" name="experience_required" id="experience_required" /><br/>
+  <label for="certification">Certification:</label>
+  <input type="text" name="certification" id="certification" /><br/>
+  <label for="location">Location:</label>
+  <input type="text" name="location" id="location" /><br/>
+  <label for="salary_range">Salary Range:</label>
+  <input type="text" name="salary_range" id="salary_range" /><br/>
+  <label for="expiry_date">Expiry Date:</label>
+  <input type="date" name="expiry_date" id="expiry_date" /><br/>
+  <!-- /* END JOB FORM */ -->
+  <button type="submit">Post Job</button>
+</form>
+</body>
+</html>
