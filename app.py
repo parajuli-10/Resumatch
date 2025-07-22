@@ -16,14 +16,16 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = 'your_secret_key_here'
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///itcapstone.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL', 'sqlite:///itcapstone.db'
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # Define where uploaded files will be stored and JSON file paths
-UPLOAD_FOLDER = 'uploads'
-MATCHES_FILE = 'matches.json'
-JOBS_FILE = 'jobs.json'
+UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', 'uploads')
+MATCHES_FILE = os.environ.get('MATCHES_FILE', 'matches.json')
+JOBS_FILE = os.environ.get('JOBS_FILE', 'jobs.json')
 
 # Ensure the uploads directory and JSON files exist
 if not os.path.exists(UPLOAD_FOLDER):
