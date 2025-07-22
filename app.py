@@ -190,10 +190,13 @@ def upload_job():
     if not job_file:
         flash('Please select a job description file.', 'danger')
         return redirect(url_for('employer_dashboard'))
+    filename = secure_filename(job_file.filename)
+    if not filename.lower().endswith('.pdf'):
+        flash('Only PDF files are allowed.', 'danger')
+        return redirect(url_for('employer_dashboard'))
     # Ensure uploads folder exists
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
-    filename = secure_filename(job_file.filename)
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     job_file.save(file_path)
     # Record this job upload in jobs.json with employer association
@@ -230,6 +233,9 @@ def upload_resume():
     # Handle job description input (either an existing selection or a new upload)
     if uploaded_jd:
         jd_filename = secure_filename(uploaded_jd.filename)
+        if not jd_filename.lower().endswith('.pdf'):
+            flash('Only PDF files are allowed.', 'danger')
+            return redirect(url_for('user_dashboard'))
         job_desc_path = os.path.join(app.config['UPLOAD_FOLDER'], jd_filename)
         uploaded_jd.save(job_desc_path)
     elif selected_jd:
@@ -242,6 +248,9 @@ def upload_resume():
         return redirect(url_for('user_dashboard'))
     # Save the uploaded resume file
     resume_filename = secure_filename(resume_file.filename)
+    if not resume_filename.lower().endswith('.pdf'):
+        flash('Only PDF files are allowed.', 'danger')
+        return redirect(url_for('user_dashboard'))
     resume_path = os.path.join(app.config['UPLOAD_FOLDER'], resume_filename)
     resume_file.save(resume_path)
     # Extract text from resume and job description PDFs
