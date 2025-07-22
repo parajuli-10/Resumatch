@@ -31,7 +31,7 @@
         <form action="{{ url_for('upload_resume') }}" method="POST" enctype="multipart/form-data">
           <div class="mb-3">
             <label for="resume" class="form-label">Upload Resume (PDF)</label>
-            <input type="file" class="form-control" id="resume" name="resume" accept=".pdf" required>
+            <input type="file" class="form-control" id="resume" name="resume" accept=".pdf,.doc,.docx,.txt" capture="environment" required>
           </div>
           <!-- Dropdown for selecting employer-uploaded job descriptions -->
           <div class="mb-3">
