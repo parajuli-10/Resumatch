@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session, flash
+from flask import Flask, request, render_template, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
@@ -10,8 +10,6 @@ from PyPDF2 import PdfReader
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from flask import send_from_directory
-
-import secrets  # To generate secure tokens
 
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
