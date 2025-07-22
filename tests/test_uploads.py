@@ -3,6 +3,9 @@ import os
 import pytest
 from flask_sqlalchemy import query as fsq
 
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 import app
 
 class DummyPage:
@@ -33,6 +36,8 @@ def login(client, role="user"):
     with client.session_transaction() as sess:
         sess["user_id"] = 1
         sess["role"] = role
+        if role == "employer":
+            sess["employer_id"] = "ABC123"
 
 class DummyUser:
     full_name = "User"
