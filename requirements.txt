@@ -1,4 +1,4 @@
-o	pip install flask
-o	pip install flask_sqlalchemy
-o	pip install scikit-learn
-o	pip install PyPDF2
+flask
+flask_sqlalchemy
+scikit-learn
+PyPDF2

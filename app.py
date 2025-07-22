@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session, flash
+from flask import Flask, request, render_template, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
@@ -10,8 +10,6 @@ from PyPDF2 import PdfReader
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from flask import send_from_directory
-
-import secrets  # To generate secure tokens
 
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -192,10 +190,13 @@ def upload_job():
     if not job_file:
         flash('Please select a job description file.', 'danger')
         return redirect(url_for('employer_dashboard'))
+    filename = secure_filename(job_file.filename)
+    if not filename.lower().endswith('.pdf'):
+        flash('Only PDF files are allowed.', 'danger')
+        return redirect(url_for('employer_dashboard'))
     # Ensure uploads folder exists
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
-    filename = secure_filename(job_file.filename)
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     job_file.save(file_path)
     # Record this job upload in jobs.json with employer association
@@ -232,6 +233,9 @@ def upload_resume():
     # Handle job description input (either an existing selection or a new upload)
     if uploaded_jd:
         jd_filename = secure_filename(uploaded_jd.filename)
+        if not jd_filename.lower().endswith('.pdf'):
+            flash('Only PDF files are allowed.', 'danger')
+            return redirect(url_for('user_dashboard'))
         job_desc_path = os.path.join(app.config['UPLOAD_FOLDER'], jd_filename)
         uploaded_jd.save(job_desc_path)
     elif selected_jd:
@@ -244,6 +248,9 @@ def upload_resume():
         return redirect(url_for('user_dashboard'))
     # Save the uploaded resume file
     resume_filename = secure_filename(resume_file.filename)
+    if not resume_filename.lower().endswith('.pdf'):
+        flash('Only PDF files are allowed.', 'danger')
+        return redirect(url_for('user_dashboard'))
     resume_path = os.path.join(app.config['UPLOAD_FOLDER'], resume_filename)
     resume_file.save(resume_path)
     # Extract text from resume and job description PDFs
@@ -319,6 +326,32 @@ def delete_job(filename):
 @app.route('/download-job/<filename>')
 def download_job(filename):
     """Serve the job description file for download"""
+    # Ensure employer is logged in
+    if 'user_id' not in session or session.get('role') != 'employer':
+        flash('Please log in first.', 'danger')
+        return redirect(url_for('employer_login_page'))
+
+    # Verify the requested file belongs to this employer
+    try:
+        with open(JOBS_FILE, 'r') as f:
+            jobs_list = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        jobs_list = []
+
+    job_entry = next(
+        (
+            job
+            for job in jobs_list
+            if job.get('job_description') == filename
+            and job.get('employer_id') == session['user_id']
+        ),
+        None,
+    )
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if not job_entry or not os.path.exists(file_path):
+        flash("File not found or you don't have permission to access it.", 'danger')
+        return redirect(url_for('employer_dashboard'))
+
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
 
