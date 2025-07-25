@@ -1,17 +1,27 @@
 import json
-from flask import Flask, request, render_template, redirect, url_for, session, flash, abort
+from flask import (
+    Flask,
+    request,
+    render_template,
+    redirect,
+    url_for,
+    session,
+    flash,
+    abort,
+    send_from_directory,
+    Blueprint,
+)
 import random
 import string
 from flask_sqlalchemy import SQLAlchemy
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import io
 from PyPDF2 import PdfReader
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from flask import send_from_directory
 
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -23,6 +33,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+bp = Blueprint('jobs', __name__)
 
 # Define where uploaded files will be stored and JSON file paths
 UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', 'uploads')
@@ -57,10 +68,47 @@ class User(db.Model):
             random_id = ''.join(random.choices(characters, k=6))
             if not User.query.filter_by(employer_id=random_id).first():
                 return random_id
-    
+
+
+class Job(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    position_type = db.Column(db.String(50))
+    work_mode = db.Column(db.String(50))
+    location = db.Column(db.String(120))
+    salary_min = db.Column(db.Integer)
+    salary_max = db.Column(db.Integer)
+    posted_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 with app.app_context():
     db.create_all()
+
+
+@bp.route('/jobs')
+def list_jobs():
+    qs = Job.query
+    if request.args.get('position_type'):
+        qs = qs.filter_by(position_type=request.args['position_type'])
+    if request.args.get('work_mode'):
+        qs = qs.filter_by(work_mode=request.args['work_mode'])
+    if request.args.get('location'):
+        qs = qs.filter(Job.location.ilike(f"%{request.args['location']}%"))
+    if request.args.get('salary_range'):
+        try:
+            low, high = map(int, request.args['salary_range'].split('-'))
+            qs = qs.filter(Job.salary_min >= low, Job.salary_max <= high)
+        except ValueError:
+            pass
+    if request.args.get('posted_within'):
+        delta_map = {'1h': 1/24, '1d': 1, '1w': 7, '1m': 30}
+        delta = delta_map.get(request.args['posted_within'])
+        if delta is not None:
+            cutoff = datetime.utcnow() - timedelta(days=delta)
+            qs = qs.filter(Job.posted_at >= cutoff)
+    jobs = qs.all()
+    return render_template('jobs.html', jobs=jobs)
+
+app.register_blueprint(bp)
 
 # Routes
 @app.route('/')

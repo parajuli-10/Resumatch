@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Job Listings</title>
+</head>
+<body>
+  <h1>Job Listings</h1>
+  <ul>
+    {% for job in jobs %}
+      <li>
+        {{ job.position_type }} - {{ job.work_mode }} - {{ job.location }} - {{ job.salary_min }}-{{ job.salary_max }}
+      </li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
